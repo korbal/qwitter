@@ -81,10 +81,11 @@
                   icon="fas fa-retweet"
                   size="sm" />
                 <q-btn
+                @click="toggleLiked(qweet)"
                   flat
                   round
-                  color="grey"
-                  icon="far fa-heart"
+                  :color="qweet.liked ? 'pink' : 'grey'"
+                  :icon="qweet.liked ? 'fas fa-heart' : 'far fa-heart' "
                   size="sm" />
                 <q-btn
                   flat
@@ -108,7 +109,7 @@
 import { defineComponent } from 'vue'
 //import db from 'src/boot/firebase.js'
 //import { collection, query, where, onSnapshot, db } from "firebase/firestore";
-import { collection, query, where, onSnapshot, getDocs, orderBy, addDoc, deleteDoc, doc} from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs, orderBy, addDoc, deleteDoc, doc, updateDoc} from "firebase/firestore";
 import { db } from "src/boot/firebase.js"
 import { formatDistance } from 'date-fns'
 
@@ -119,12 +120,17 @@ export default defineComponent({
       newQweetContent:'',
       qweets: [
         // {
+        //   id: 'ID1',
         //   content: 'Bacon ipsum dolor amet tongue chicken rump, capicola tri-tip bacon meatloaf pork belly ham buffalo ham hock andouille chislic meatball pork loin. Short ribs strip steak tongue pastrami pork bacon kielbasa sirloin buffalo fatback. Pastrami buffalo cow porchetta ball tip picanha tongue meatball ribeye beef ribs. Leberkas short loin short ribs sausage drumstick pork chop.',
-        //   date: 1647685901
+        //   date: 1647685901,
+        //   liked: false
+          
         // },
         // {
+        //   id: 'ID2',
         //   content: 'Bacon ipsum dolor amet turducken hamburger short ribs ground round strip steak short loin beef, fatback tenderloin shank landjaeger capicola biltong bacon spare ribs.',
-        //   date: 1647685931
+        //   date: 1647685931,
+        //   liked: true
         // }
       ]
     }
@@ -133,7 +139,8 @@ export default defineComponent({
     addNewQweet(){
       let newQweet = {
         content: this.newQweetContent,
-        date: Date.now()
+        date: Date.now(),
+        liked: false
       }
       //this.qweets.unshift(newQweet)
       
@@ -149,6 +156,11 @@ export default defineComponent({
       // console.log('index: ', index)
       // this.qweets.splice(index, 1)
        deleteDoc(doc(db, "qweets", qweet.id))
+    }, 
+    toggleLiked(qweet){
+      updateDoc(doc(db,"qweets", qweet.id), {
+      liked: !qweet.liked
+});
     }
   },
   mounted(){
@@ -169,6 +181,9 @@ export default defineComponent({
         }
         if (change.type === "modified") {
             console.log("Modified qweet: ", qweetChange);
+            let index = this.qweets.findIndex(qweet => qweet.id === qweetChange.id)
+            Object.assign(this.qweets[index], qweetChange)
+
         }
         if (change.type === "removed") {
             console.log("Removed qweet: ", qweetChange);
