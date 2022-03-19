@@ -106,6 +106,10 @@
 
 <script>
 import { defineComponent } from 'vue'
+//import db from 'src/boot/firebase.js'
+//import { collection, query, where, onSnapshot, db } from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs, orderBy} from "firebase/firestore";
+import { db } from "src/boot/firebase.js"
 import { formatDistance } from 'date-fns'
 
 export default defineComponent({
@@ -114,14 +118,14 @@ export default defineComponent({
     return {
       newQweetContent:'',
       qweets: [
-        {
-          content: 'Bacon ipsum dolor amet tongue chicken rump, capicola tri-tip bacon meatloaf pork belly ham buffalo ham hock andouille chislic meatball pork loin. Short ribs strip steak tongue pastrami pork bacon kielbasa sirloin buffalo fatback. Pastrami buffalo cow porchetta ball tip picanha tongue meatball ribeye beef ribs. Leberkas short loin short ribs sausage drumstick pork chop.',
-          date: 1647685901
-        },
-        {
-          content: 'Bacon ipsum dolor amet turducken hamburger short ribs ground round strip steak short loin beef, fatback tenderloin shank landjaeger capicola biltong bacon spare ribs.',
-          date: 1647685931
-        }
+        // {
+        //   content: 'Bacon ipsum dolor amet tongue chicken rump, capicola tri-tip bacon meatloaf pork belly ham buffalo ham hock andouille chislic meatball pork loin. Short ribs strip steak tongue pastrami pork bacon kielbasa sirloin buffalo fatback. Pastrami buffalo cow porchetta ball tip picanha tongue meatball ribeye beef ribs. Leberkas short loin short ribs sausage drumstick pork chop.',
+        //   date: 1647685901
+        // },
+        // {
+        //   content: 'Bacon ipsum dolor amet turducken hamburger short ribs ground round strip steak short loin beef, fatback tenderloin shank landjaeger capicola biltong bacon spare ribs.',
+        //   date: 1647685931
+        // }
       ]
     }
   },
@@ -140,8 +144,32 @@ export default defineComponent({
       console.log('index: ', index)
       this.qweets.splice(index, 1)
     }
+  },
+  mounted(){
+    //const colRef = collection(db, 'qweets')
+    //getDocs(colRef).then(d => console.log(d.docs))
+
+    const q = query(collection(db, "qweets"), orderBy("date"))
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      
+      snapshot.docChanges().forEach((change) => {
+        let qweetChange = change.doc.data()
+
+        if (change.type === "added") {
+            console.log("New qweet: ", qweetChange);
+            this.qweets.unshift(qweetChange)
+        }
+        if (change.type === "modified") {
+            console.log("Modified qweet: ", qweetChange);
+        }
+        if (change.type === "removed") {
+            console.log("Removed qweet: ", qweetChange);
+        }
+  });
+});
+
   }
- 
 })
 </script>
 <style lang="sass">
