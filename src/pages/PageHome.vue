@@ -138,8 +138,8 @@ export default defineComponent({
       //this.qweets.unshift(newQweet)
       
       // Add a new document with a generated id.
-      const docRef = addDoc(collection(db, "qweets"), {newQweet});
-      console.log("Document written with ID: ", docRef.id);
+      const docRef = addDoc(collection(db, "qweets"), newQweet);
+      console.log("Document written with ID: ", newQweet.content);
 
       this.newQweetContent = ''
     },
