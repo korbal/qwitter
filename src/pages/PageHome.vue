@@ -108,7 +108,7 @@
 import { defineComponent } from 'vue'
 //import db from 'src/boot/firebase.js'
 //import { collection, query, where, onSnapshot, db } from "firebase/firestore";
-import { collection, query, where, onSnapshot, getDocs, orderBy} from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs, orderBy, addDoc} from "firebase/firestore";
 import { db } from "src/boot/firebase.js"
 import { formatDistance } from 'date-fns'
 
@@ -135,7 +135,12 @@ export default defineComponent({
         content: this.newQweetContent,
         date: Date.now()
       }
-      this.qweets.unshift(newQweet)
+      //this.qweets.unshift(newQweet)
+      
+      // Add a new document with a generated id.
+      const docRef = addDoc(collection(db, "qweets"), {newQweet});
+      console.log("Document written with ID: ", docRef.id);
+
       this.newQweetContent = ''
     },
     deleteQweet(qweet){
