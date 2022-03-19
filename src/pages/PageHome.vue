@@ -49,7 +49,7 @@
   >
           <q-item
             v-for="qweet in qweets"
-            :key="qweet.date"
+            :key="qweet.id"
             class="qweet q-py-md">
             <q-item-section avatar top>
               <q-avatar>
@@ -108,7 +108,7 @@
 import { defineComponent } from 'vue'
 //import db from 'src/boot/firebase.js'
 //import { collection, query, where, onSnapshot, db } from "firebase/firestore";
-import { collection, query, where, onSnapshot, getDocs, orderBy, addDoc} from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs, orderBy, addDoc, deleteDoc, doc} from "firebase/firestore";
 import { db } from "src/boot/firebase.js"
 import { formatDistance } from 'date-fns'
 
@@ -144,10 +144,11 @@ export default defineComponent({
       this.newQweetContent = ''
     },
     deleteQweet(qweet){
-      let dateToDelete = qweet.date
-      let index = this.qweets.findIndex(qweet => qweet.date === dateToDelete)
-      console.log('index: ', index)
-      this.qweets.splice(index, 1)
+      // let dateToDelete = qweet.date
+      // let index = this.qweets.findIndex(qweet => qweet.date === dateToDelete)
+      // console.log('index: ', index)
+      // this.qweets.splice(index, 1)
+       deleteDoc(doc(db, "qweets", qweet.id))
     }
   },
   mounted(){
@@ -160,6 +161,7 @@ export default defineComponent({
       
       snapshot.docChanges().forEach((change) => {
         let qweetChange = change.doc.data()
+        qweetChange.id = change.doc.id
 
         if (change.type === "added") {
             console.log("New qweet: ", qweetChange);
@@ -170,6 +172,8 @@ export default defineComponent({
         }
         if (change.type === "removed") {
             console.log("Removed qweet: ", qweetChange);
+            let index = this.qweets.findIndex(qweet => qweet.id === qweetChange.id)
+            this.qweets.splice(index,1)
         }
   });
 });
